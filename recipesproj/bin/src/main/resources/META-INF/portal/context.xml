@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/util
+			http://www.springframework.org/schema/util/spring-util.xsd
+			http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
+
+	<jaxrs:server id="restServices" address="/">
+		<jaxrs:serviceBeans>
+			<ref bean="${loginService}"/>
+			<ref bean="${giftcardService}"/>
+			<ref bean="${workorderService}"/>
+		</jaxrs:serviceBeans>
+  		<jaxrs:providers>
+			<ref bean="jsonProvider"/>
+		</jaxrs:providers>
+		<jaxrs:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature"/>
+		</jaxrs:features>
+	</jaxrs:server>
+	
+	<bean id="loginService" class="uy.com.geocom.giftcard.portal.ws.LoginServiceImpl">
+		<property name="restServiceClient" ref="restServiceClient"/>
+	</bean>
+	
+	<bean id="giftcardService" class="uy.com.geocom.giftcard.portal.ws.GiftcardServiceImpl">
+		<property name="restServiceClient" ref="restServiceClient"/>
+	</bean>
+	
+	<bean id="workorderService" class="uy.com.geocom.giftcard.portal.ws.WorkorderServiceImpl">
+		<property name="restServiceClient" ref="restServiceClient"/>
+	</bean>
+	
+	<bean id="dummyLoginService" class="uy.com.geocom.giftcard.portal.ws.DummyLoginServiceImpl"/>
+	
+	<bean id="dummyGiftcardService" class="uy.com.geocom.giftcard.portal.ws.DummyGiftcardServiceImpl"/>
+	
+	<bean id="dummyWorkorderService" class="uy.com.geocom.giftcard.portal.ws.DummyWorkorderServiceImpl"/>
+	
+	<bean id="restServiceClient" class="uy.com.geocom.giftcard.portal.ws.middleware.RestServiceClient">
+		<property name="connectionTimeout" value="${middleware.connection.timeout}"/>
+		<property name="readTimeout" value="${middleware.read.timeout}"/>
+		<property name="url" value="http://${middleware.url}:${middleware.port}/geoloyalty-mobile-service/mobile/"/>
+	</bean>
+		
+	<bean id="jacksonMapper" class="org.codehaus.jackson.map.ObjectMapper" factory-bean="jacksonObjectMapper" factory-method="createObjectMapper"/>
+	
+	<bean id="jacksonObjectMapper" class="uy.com.geocom.giftcard.portal.ws.JacksonMapperObjectMapper"/>
+	
+	<bean id="jsonProvider" class="org.codehaus.jackson.jaxrs.JacksonJsonProvider">
+		<property name="mapper" ref="jacksonMapper"/>
+	</bean>
+	
+</beans>
